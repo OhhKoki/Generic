@@ -2,6 +2,8 @@ package com.example;
 
 import org.junit.Test;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -227,6 +229,89 @@ public class GenericTest {
         list.add(new Cat());
         list.add(new BabyCat());
         list.stream().forEach(System.out::println);
+    }
+
+    /**
+     * 测试无限制擦除
+     */
+    @Test
+    public void test14() {
+        Erasure1<Integer> erasure1 = new Erasure1<>();
+        Class<? extends Erasure1> erasureClass = erasure1.getClass();
+        Field[] fields = erasureClass.getFields();
+        /**
+         * 输出结果：
+         *      public java.lang.Object com.example.Erasure1.key
+         */
+        Arrays.stream(fields).forEach(System.out::println);
+    }
+
+    /**
+     * 测试有限制擦除
+     */
+    @Test
+    public void test15() {
+        Erasure2<Integer> erasure2 = new Erasure2<>();
+        Class<? extends Erasure2> erasureClass = erasure2.getClass();
+        Field[] fields = erasureClass.getFields();
+        /**
+         * 输出结果：
+         *      public java.lang.Number com.example.Erasure2.key
+         */
+        Arrays.stream(fields).forEach(System.out::println);
+    }
+
+    /**
+     * 泛型方法类型擦除
+     */
+    @Test
+    public void test16() {
+        Erasure3 erasure3 = new Erasure3();
+        Class<? extends Erasure3> erasureClass = erasure3.getClass();
+        Method[] methods = erasureClass.getDeclaredMethods();
+        /**
+         * 输出结果：
+         *      public java.lang.Object com.example.Erasure3.getObject(java.lang.Object)
+         *      public java.util.List com.example.Erasure3.getList(java.util.List)
+         */
+        Arrays.stream(methods).forEach(System.out::println);
+    }
+
+    /**
+     * 类型擦除--桥接方法
+     */
+    @Test
+    public void test17() {
+        Info info = new InfoImpl();
+        Class<? extends Info> infoClass = info.getClass();
+        Method[] methods = infoClass.getDeclaredMethods();
+        /**
+         * 输出内容：
+         *      public java.lang.Integer com.example.InfoImpl.info(java.lang.Integer)
+         *      public java.lang.Object com.example.InfoImpl.info(java.lang.Object)
+         */
+        Arrays.stream(methods).forEach(System.out::println);
+    }
+
+    /**
+     * 泛型与数组
+     */
+    public void test18() {
+        Fruit<String> fruit = new Fruit<>(String.class, 10);
+    }
+
+    /**
+     * 泛型与反射
+     * @throws Exception
+     */
+    public void test19() throws Exception {
+        // 带泛型时的效果
+        Class<Annimal> clz1 = Annimal.class;
+        Annimal annimal = clz1.newInstance();
+
+        // 不带泛型时的效果，需要强制转换
+        Class clz2 = Annimal.class;
+        Object o = clz2.newInstance();
     }
 
 }
